@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "188289635471-72gp2jkjis831nls1pvl4750etesb67c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bawasiq.customer",
+            "certificate_hash": "288c1bdd94d0ced641f9282240f6b6b5be396671"
+          }
+        },
+        {
           "client_id": "188289635471-d51aslh8vsar7h4ruhhfcathk7ttc0qi.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -59,9 +67,81 @@
     },
     {
       "client_info": {
+        "mobilesdk_app_id": "1:188289635471:android:f1941a7a271493407c0cfa",
+        "android_client_info": {
+          "package_name": "com.bawasiq.customers"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "188289635471-vb2jl2uofotl3sjpmb9ldq3onr6jt5ef.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCrQVb6z3AGnifBs7s4FAJM2BTF6s4EetQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "188289635471-vb2jl2uofotl3sjpmb9ldq3onr6jt5ef.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "188289635471-076ej5k06dhoul3r5f761ll6j1rtbad0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.bawasiq.customer"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:188289635471:android:a691b2c22be1e66c7c0cfa",
         "android_client_info": {
           "package_name": "com.bawasiq.deliveryapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "188289635471-vb2jl2uofotl3sjpmb9ldq3onr6jt5ef.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCrQVb6z3AGnifBs7s4FAJM2BTF6s4EetQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "188289635471-vb2jl2uofotl3sjpmb9ldq3onr6jt5ef.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "188289635471-076ej5k06dhoul3r5f761ll6j1rtbad0.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.bawasiq.customer"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:188289635471:android:435d6bfc89d89dfd7c0cfa",
+        "android_client_info": {
+          "package_name": "com.wrteam.bawasiq.seller"
         }
       },
       "oauth_client": [
