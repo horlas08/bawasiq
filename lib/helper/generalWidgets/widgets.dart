@@ -113,12 +113,12 @@ Widget setNetworkImg({
             width: width,
 
             fit: boxFit,
-            placeholderFadeInDuration: Duration(milliseconds: 300),
+            // placeholderFadeInDuration: Duration(milliseconds: 300),
             placeholder: (context, url) => defaultImg(
               image: AppAssets.placeholderIcon,
               boxFit: boxFit,
-              height: 100,
-              width: 100
+              // height: 100,
+              // width: 100
             ),
             errorWidget: (context, _, __) =>
                 const Icon(Icons.broken_image, size: 40),

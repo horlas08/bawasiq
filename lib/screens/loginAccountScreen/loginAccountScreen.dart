@@ -833,91 +833,96 @@ class _LoginAccountState extends State<LoginAccountScreen> {
   }
 
   firebaseLoginProcess() async {
-    setState(() {});
-    if (editMobileTextEditingController.text.isNotEmpty) {
-      if(context.read<AppSettingsProvider>().settingsData!.phoneAuthPassword=="1"){
-        callLoginApi(null);
-      }else{
-      if (context.read<AppSettingsProvider>().settingsData!.firebaseAuthentication == "1") {
-        await firebaseAuth.verifyPhoneNumber(
-          timeout: Duration(minutes: 1, seconds: 30),
-          phoneNumber:
+    try{
+      setState(() {});
+      if (editMobileTextEditingController.text.isNotEmpty) {
+        if(context.read<AppSettingsProvider>().settingsData!.phoneAuthPassword=="1"){
+          callLoginApi(null);
+        }else{
+          if (context.read<AppSettingsProvider>().settingsData!.firebaseAuthentication == "1") {
+            await firebaseAuth.verifyPhoneNumber(
+              timeout: Duration(minutes: 1, seconds: 30),
+              phoneNumber:
               '${selectedCountryCode!.dialCode}${editMobileTextEditingController.text}',
-          verificationCompleted: (PhoneAuthCredential credential) {},
-          verificationFailed: (FirebaseAuthException e) {
-            showMessage(
-              context,
-              e.message!,
-              MessageType.warning,
-            );
-
-            setState(() {
-              isLoading = false;
-            });
-          },
-          codeSent: (String verificationId, int? resendToken) {
-            forceResendingToken = resendToken;
-            isLoading = false;
-            setState(() {
-              otpVerificationId = verificationId;
-
-              List<dynamic> firebaseArguments = [
-                firebaseAuth,
-                otpVerificationId,
-                editMobileTextEditingController.text,
-                selectedCountryCode!,
-                widget.from ?? null
-              ];
-              Navigator.pushNamed(context, otpScreen,
-                  arguments: firebaseArguments);
-            });
-          },
-          codeAutoRetrievalTimeout: (String verificationId) {
-            if (mounted) {
-              setState(() {
-                isLoading = false;
-              });
-            }
-          },
-          forceResendingToken: forceResendingToken,
-        );
-      } else if (Constant.customSmsGatewayOtpBased == "1") {
-        context.read<UserProfileProvider>().sendCustomOTPSmsProvider(
-          context: context,
-          params: {
-            ApiAndParams.phone:
-                "$selectedCountryCode${editMobileTextEditingController.text}"
-          },
-        ).then(
-          (value) {
-            if (value == "1") {
-              List<dynamic> firebaseArguments = [
-                firebaseAuth,
-                otpVerificationId,
-                editMobileTextEditingController.text,
-                selectedCountryCode!,
-                widget.from ?? null
-              ];
-              Navigator.pushNamed(context, otpScreen,
-                  arguments: firebaseArguments);
-            } else {
-              setState(() {
-                isLoading = false;
-              });
-              showMessage(
-                context,
-                getTranslatedValue(
+              verificationCompleted: (PhoneAuthCredential credential) {},
+              verificationFailed: (FirebaseAuthException e) {
+                showMessage(
                   context,
-                  smsGatewayErrorLabel,
-                ),
-                MessageType.warning,
-              );
-            }
-          },
-        );
+                  e.message!,
+                  MessageType.warning,
+                );
+
+                setState(() {
+                  isLoading = false;
+                });
+              },
+              codeSent: (String verificationId, int? resendToken) {
+                forceResendingToken = resendToken;
+                isLoading = false;
+                setState(() {
+                  otpVerificationId = verificationId;
+
+                  List<dynamic> firebaseArguments = [
+                    firebaseAuth,
+                    otpVerificationId,
+                    editMobileTextEditingController.text,
+                    selectedCountryCode!,
+                    widget.from ?? null
+                  ];
+                  Navigator.pushNamed(context, otpScreen,
+                      arguments: firebaseArguments);
+                });
+              },
+              codeAutoRetrievalTimeout: (String verificationId) {
+                if (mounted) {
+                  setState(() {
+                    isLoading = false;
+                  });
+                }
+              },
+              forceResendingToken: forceResendingToken,
+            );
+          } else if (Constant.customSmsGatewayOtpBased == "1") {
+            context.read<UserProfileProvider>().sendCustomOTPSmsProvider(
+              context: context,
+              params: {
+                ApiAndParams.phone:
+                "$selectedCountryCode${editMobileTextEditingController.text}"
+              },
+            ).then(
+                  (value) {
+                if (value == "1") {
+                  List<dynamic> firebaseArguments = [
+                    firebaseAuth,
+                    otpVerificationId,
+                    editMobileTextEditingController.text,
+                    selectedCountryCode!,
+                    widget.from ?? null
+                  ];
+                  Navigator.pushNamed(context, otpScreen,
+                      arguments: firebaseArguments);
+                } else {
+                  setState(() {
+                    isLoading = false;
+                  });
+                  showMessage(
+                    context,
+                    getTranslatedValue(
+                      context,
+                      smsGatewayErrorLabel,
+                    ),
+                    MessageType.warning,
+                  );
+                }
+              },
+            );
+          }
+        }
       }
-      }
+    }catch(e){
+      print(e);
     }
+
   }
 
   @override
@@ -926,178 +931,188 @@ class _LoginAccountState extends State<LoginAccountScreen> {
   }
 
   backendApiProcess(User? user) async {
-    if (showOtpWidget) {
-      context
-          .read<UserProfileProvider>()
-          .verifyRegisteredEmailProvider(
-              context: context,
-              params: {
-                ApiAndParams.email: editEmailTextEditingController.text,
-                ApiAndParams.code: pinController.text,
-              },
-              from: "login")
-          .then(
-        (value) async {
-          await callLoginApi(user);
-        },
-      );
-    } else {
-      await callLoginApi(user);
+    try{
+      if (showOtpWidget) {
+        context
+            .read<UserProfileProvider>()
+            .verifyRegisteredEmailProvider(
+            context: context,
+            params: {
+              ApiAndParams.email: editEmailTextEditingController.text,
+              ApiAndParams.code: pinController.text,
+            },
+            from: "login")
+            .then(
+              (value) async {
+            await callLoginApi(user);
+          },
+        );
+      } else {
+        await callLoginApi(user);
+      }
+    }catch(e){
+      print(e.toString());
     }
+
   }
 
   Future callLoginApi(User? user) async {
-    Map<String, String> params = {
-      ApiAndParams.id: authProvider == AuthProviders.phone
-          ? editMobileTextEditingController.text
-          : authProvider == AuthProviders.emailPassword
-              ? editEmailTextEditingController.text
-              : user?.email.toString() ?? "",
-      ApiAndParams.type: authProvider == AuthProviders.phone
-          ? "phone"
-          : authProvider == AuthProviders.google
-              ? "google"
-              : authProvider == AuthProviders.apple
-                  ? "apple"
-                  : authProvider == AuthProviders.emailPassword
-                      ? "email"
-                      : "",
-      ApiAndParams.platform: Platform.isAndroid ? "android" : "ios",
-      ApiAndParams.fcmToken:
-          Constant.session.getData(SessionManager.keyFCMToken),
-    };
+    try{
+      Map<String, String> params = {
+        ApiAndParams.id: authProvider == AuthProviders.phone
+            ? editMobileTextEditingController.text
+            : authProvider == AuthProviders.emailPassword
+            ? editEmailTextEditingController.text
+            : user?.email.toString() ?? "",
+        ApiAndParams.type: authProvider == AuthProviders.phone
+            ? "phone"
+            : authProvider == AuthProviders.google
+            ? "google"
+            : authProvider == AuthProviders.apple
+            ? "apple"
+            : authProvider == AuthProviders.emailPassword
+            ? "email"
+            : "",
+        ApiAndParams.platform: Platform.isAndroid ? "android" : "ios",
+        ApiAndParams.fcmToken:
+        Constant.session.getData(SessionManager.keyFCMToken),
+      };
 
-    if (authProvider == AuthProviders.emailPassword) {
-      params[ApiAndParams.password] =
-          editPasswordTextEditingController.text.trim();
-    }
-    if (authProvider == AuthProviders.phone) {
-      params[ApiAndParams.password] = editPhonePasswordTextEditingController.text.trim();
-      params[ApiAndParams.phoneAuthType] = (context.read<AppSettingsProvider>().settingsData!.phoneAuthPassword=="1")?"phone_auth_password":"phone_auth_otp";
-    }
-    
+      if (authProvider == AuthProviders.emailPassword) {
+        params[ApiAndParams.password] =
+            editPasswordTextEditingController.text.trim();
+      }
+      if (authProvider == AuthProviders.phone) {
+        params[ApiAndParams.password] = editPhonePasswordTextEditingController.text.trim();
+        params[ApiAndParams.phoneAuthType] = (context.read<AppSettingsProvider>().settingsData!.phoneAuthPassword=="1")?"phone_auth_password":"phone_auth_otp";
+      }
 
-    await context
-        .read<UserProfileProvider>()
-        .loginApi(context: context, params: params)
-        .then(
-      (value) async {
-        isLoading = false;
-        setState(() {});
-        if (value == 1) {
-          if (widget.from == "add_to_cart") {
-            addGuestCartBulkToCartWhileLogin(
-              context: context,
-              params: Constant.setGuestCartParams(
-                cartList: context.read<CartListProvider>().cartList,
-              ),
-            ).then((value) {
-              Navigator.pop(context);
-              Navigator.pop(context);
-            });
-          } else if (Constant.session.getBoolData(SessionManager.isUserLogin)) {
-            if (context.read<CartListProvider>().cartList.isNotEmpty) {
+
+      await context
+          .read<UserProfileProvider>()
+          .loginApi(context: context, params: params)
+          .then(
+            (value) async {
+          isLoading = false;
+          setState(() {});
+          if (value == 1) {
+            if (widget.from == "add_to_cart") {
               addGuestCartBulkToCartWhileLogin(
                 context: context,
                 params: Constant.setGuestCartParams(
                   cartList: context.read<CartListProvider>().cartList,
                 ),
-              ).then(
-                (value) => Navigator.of(context).pushNamedAndRemoveUntil(
+              ).then((value) {
+                Navigator.pop(context);
+                Navigator.pop(context);
+              });
+            } else if (Constant.session.getBoolData(SessionManager.isUserLogin)) {
+              if (context.read<CartListProvider>().cartList.isNotEmpty) {
+                addGuestCartBulkToCartWhileLogin(
+                  context: context,
+                  params: Constant.setGuestCartParams(
+                    cartList: context.read<CartListProvider>().cartList,
+                  ),
+                ).then(
+                      (value) => Navigator.of(context).pushNamedAndRemoveUntil(
+                    mainHomeScreen,
+                        (Route<dynamic> route) => false,
+                  ),
+                );
+              } else {
+                Navigator.of(context).pushNamedAndRemoveUntil(
                   mainHomeScreen,
-                  (Route<dynamic> route) => false,
-                ),
-              );
-            } else {
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                mainHomeScreen,
-                (Route<dynamic> route) => false,
-              );
+                      (Route<dynamic> route) => false,
+                );
+              }
             }
-          }
-        } else if (value == 2) {
-          showOtpWidget = true;
-          setState(() {});
-        } else if(value == 3){
-          Navigator.of(context).pushNamed(
-            forgotPasswordScreen,
-            arguments: [true, "user_exist_password_blank"]
-          );
-        } else if (value == 4) {
-          showMessage(
-            context,
-            getTranslatedValue(
-              context,
-              invalidPasswordLabel,
-            ),
-            MessageType.warning,
-          );
-        } else if(value == 5){
-          showMessage(
-            context,
-            getTranslatedValue(
-              context,
-              userDeactivatedLabel,
-            ),
-            MessageType.warning,
-          );
-        }else {
-          setState(() {
-            isLoading = false;
-          });
-          if (user != null) {
-            Constant.session.setData(SessionManager.keyUserImage,
-                firebaseAuth.currentUser!.photoURL.toString(), false);
-
+          } else if (value == 2) {
+            showOtpWidget = true;
+            setState(() {});
+          } else if(value == 3){
             Navigator.of(context).pushNamed(
-              editProfileScreen,
-              arguments: [
-                widget.from ?? "register",
-                {
-                  ApiAndParams.id: authProvider == AuthProviders.phone
-                      ? editMobileTextEditingController.text
-                      : user.email.toString(),
-                  ApiAndParams.type: authProvider == AuthProviders.phone
-                      ? "phone"
-                      : authProvider == AuthProviders.google
-                          ? "google"
-                          : "apple",
-                  ApiAndParams.name:
-                      firebaseAuth.currentUser!.displayName ?? "",
-                  ApiAndParams.email: firebaseAuth.currentUser!.email ?? "",
-                  ApiAndParams.countryCode: "",
-                  ApiAndParams.mobile:
-                      firebaseAuth.currentUser!.phoneNumber ?? "",
-                  ApiAndParams.platform: Platform.isAndroid ? "android" : "ios",
-                  ApiAndParams.fcmToken:
-                      Constant.session.getData(SessionManager.keyFCMToken),
-                }
-              ],
+                forgotPasswordScreen,
+                arguments: [true, "user_exist_password_blank"]
             );
-          } else {
-            if (value == 0) {
-              showMessage(
+          } else if (value == 4) {
+            showMessage(
+              context,
+              getTranslatedValue(
                 context,
-                getTranslatedValue(
-                  context,
-                  userNotRegisteredLabel,
-                ),
-                MessageType.warning,
+                invalidPasswordLabel,
+              ),
+              MessageType.warning,
+            );
+          } else if(value == 5){
+            showMessage(
+              context,
+              getTranslatedValue(
+                context,
+                userDeactivatedLabel,
+              ),
+              MessageType.warning,
+            );
+          }else {
+            setState(() {
+              isLoading = false;
+            });
+            if (user != null) {
+              Constant.session.setData(SessionManager.keyUserImage,
+                  firebaseAuth.currentUser!.photoURL.toString(), false);
+
+              Navigator.of(context).pushNamed(
+                editProfileScreen,
+                arguments: [
+                  widget.from ?? "register",
+                  {
+                    ApiAndParams.id: authProvider == AuthProviders.phone
+                        ? editMobileTextEditingController.text
+                        : user.email.toString(),
+                    ApiAndParams.type: authProvider == AuthProviders.phone
+                        ? "phone"
+                        : authProvider == AuthProviders.google
+                        ? "google"
+                        : "apple",
+                    ApiAndParams.name:
+                    firebaseAuth.currentUser!.displayName ?? "",
+                    ApiAndParams.email: firebaseAuth.currentUser!.email ?? "",
+                    ApiAndParams.countryCode: "",
+                    ApiAndParams.mobile:
+                    firebaseAuth.currentUser!.phoneNumber ?? "",
+                    ApiAndParams.platform: Platform.isAndroid ? "android" : "ios",
+                    ApiAndParams.fcmToken:
+                    Constant.session.getData(SessionManager.keyFCMToken),
+                  }
+                ],
               );
             } else {
-              showMessage(
-                context,
-                getTranslatedValue(
+              if (value == 0) {
+                showMessage(
                   context,
-                  somethingWentWrongLabel,
-                ),
-                MessageType.warning,
-              );
+                  getTranslatedValue(
+                    context,
+                    userNotRegisteredLabel,
+                  ),
+                  MessageType.warning,
+                );
+              } else {
+                showMessage(
+                  context,
+                  getTranslatedValue(
+                    context,
+                    somethingWentWrongLabel,
+                  ),
+                  MessageType.warning,
+                );
+              }
             }
           }
-        }
-      },
-    );
+        },
+      );
+    }catch(e){
+      print(e.toString());
+    }
+
   }
 
   @override
